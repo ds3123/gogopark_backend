@@ -37,12 +37,27 @@ class PlanController extends Controller {
 
     // -----------------------------------------------------------------------------
 
-    // 查詢 _ 所有方案 + 客戶資料 + 寵物品種資料 + 方案使用紀錄
-    public function show_AllPlans_With_Customer_PetSpecies_PlanUsedRecords( ){
+    // 查詢 _ 所有 : 方案 + 客戶資料 + 寵物品種資料 + 方案使用紀錄
+    public function show_All_Plans_With_Customer_PetSpecies_PlanUsedRecords( ){
 
-        return Plan::with( 'customer' , 'customer_relative' , 'custom_plan'  , 'pet' , 'pet_species' , 'plan_used_records' )->orderBy( 'id' , 'desc' )->get() ;
+        return Plan::with( 'customer' , 'customer_relative' ,
+                            'custom_plan'  , 'pet' , 'pet_species' , 'plan_used_records' )
+                     ->orderBy( 'id' , 'desc' )
+                     ->get() ;
 
     }
+
+    // 查詢 _ 部分 : 方案 + 客戶資料 + 寵物品種資料 + 方案使用紀錄
+    public function show_Plans_With_Customer_PetSpecies_PlanUsedRecords( $data_Num = 50 ){
+
+        return Plan::with( 'customer' , 'customer_relative' ,
+                            'custom_plan'  , 'pet' , 'pet_species' , 'plan_used_records' )
+                     ->limit( $data_Num )       
+                     ->orderBy( 'id' , 'desc' )
+                     ->get() ;
+
+    }
+
 
     // 查詢 ( 藉由 _ 客戶身分證字號 ) : 特定方案 + 客戶資料 + 寵物品種資料 + 方案使用紀錄
     public function show_SinglePlan_With_Customer_PetSpecies_PlanUsedRecords( $customerId ){

@@ -101,7 +101,7 @@ class CustomerController extends Controller{
     // 關係人(s)
     public function show_Relations( $id ){
 
-       $customer =  Customer::where( 'id' , $id )->first() ;
+       $customer = Customer::where( 'id' , $id )->first() ;
        return $customer ? $customer->customer_relation : [] ;  // 先檢查 _ 是否有該客戶
 
     }
@@ -161,11 +161,26 @@ class CustomerController extends Controller{
     // 部分 _ 客戶，及其關係人、寵物
     public function show_Customers_Relatives_Pets( $is_Archive , $data_Num = 50 ){
 
-      $cus_relative_pet = Customer::with( 'pets' , 'customer_relation' )
-                                    ->limit( $data_Num )
-                                    ->where( 'is_archive' , $is_Archive )
-                                    ->orderBy( 'customer_id' , 'desc' )   // 前端以 ( created_at ) 排序
-                                    ->get() ;
+
+      $cus_relative_pet = Customer::with( array( 'pets' => function( $query ){
+  
+                                                             $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color'  ) ;     
+                                         
+                                                           } 
+                                               ))
+                                       ->select( 'name' , 'id'  , 'mobile_phone' , 'address' , 'created_at' )  // 僅查詢客戶特定欄位 
+                                       ->limit( $data_Num )
+                                       ->where( 'is_archive' , $is_Archive )
+                                       ->orderBy( 'customer_id' , 'desc' )                
+                                       ->get() ;
+
+
+      // $cus_relative_pet = Customer::with( 'pets' , 'customer_relation' )
+      //                               ->limit( $data_Num )
+      //                               ->where( 'is_archive' , $is_Archive )
+      //                               ->orderBy( 'customer_id' , 'desc' )   // 前端以 ( created_at ) 排序
+      //                               ->get() ;
+
 
       return $cus_relative_pet ;
 
@@ -175,11 +190,28 @@ class CustomerController extends Controller{
     // 所有 _ 客戶，及其關係人、寵物
     public function show_All_Customers_Relatives_Pets( $is_Archive ){
 
-      $cus_relative_pet = Customer::with( 'pets' , 'customer_relation' )
-                                    ->where( 'is_archive' , $is_Archive )
-                                    ->orderBy( 'customer_id' , 'desc' )   // 前端以 ( created_at ) 排序
-                                    ->get() ;
 
+       $cus_relative_pet = Customer::with( array( 'pets' => function( $query ){
+  
+                                                               $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' ) ;     
+                                         
+                                                            } 
+                                                   
+                                               ))
+                                       ->select( 'name' , 'id'  , 'mobile_phone' , 'address' , 'created_at' )  // 僅查詢客戶特定欄位 
+                                       ->where( 'is_archive' , $is_Archive )
+                                       ->orderBy( 'customer_id' , 'desc' )                
+                                       ->get() ;
+
+
+      // $cus_relative_pet = Customer::with( 'pets' , 'customer_relation' )
+      //                               ->where( 'is_archive' , $is_Archive )
+      //                               ->orderBy( 'customer_id' , 'desc' )   // 前端以 ( created_at ) 排序
+      //                               ->get() ;
+
+    
+    
+    
       return $cus_relative_pet ;
 
     }

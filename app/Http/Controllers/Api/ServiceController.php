@@ -98,13 +98,6 @@ class ServiceController extends Controller{
     }
 
 
-
-
-
-
-
-
-
     // 查詢 : 所有 _ 服務 + 客戶 + 客戶關係人 + 寵物 ( 與上述相似  / 參數 : 是否服務異常 )
     public function show_Services_by_Error( $is_Error ){
 

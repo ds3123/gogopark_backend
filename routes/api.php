@@ -213,7 +213,7 @@ Route::namespace('Api')->group(function(){
         // 查詢 : 各項服務 + 客戶 + 寵物
         Route::get( '/show_with_cus_pet/' , 'ServiceController@show_With_Cus_Pet' );
 
-        
+
         // 查詢 : 部分 _ 各項服務 + 客戶 + 客戶關係人 + 寵物 --> 是否封存 
         Route::get( '/show_with_cus_relative_pet/{is_Archive}/{data_Num}' , 'ServiceController@show_With_Cus_Relative_Pet' );
 
@@ -352,8 +352,14 @@ Route::namespace('Api')->group(function(){
     // @ 方案 ( for 客戶使用 : 包月洗澡、包月美容、住宿券 ... ) ----------------------------------------------------
     Route::group( [ 'prefix' => 'plans' ] , function (){
 
-        // 查詢 _ 所有方案 + 客戶資料 + 寵物品種資料
-        Route::get( '/show_all_with_customer_species_records' , 'PlanController@show_AllPlans_With_Customer_PetSpecies_PlanUsedRecords' ) ;
+
+        // 查詢 _ 部分：方案 + 客戶資料 + 寵物品種資料
+        Route::get( '/show_with_customer_species_records/{data_Num}' , 'PlanController@show_Plans_With_Customer_PetSpecies_PlanUsedRecords' ) ;
+
+
+        // 查詢 _ 所有：方案 + 客戶資料 + 寵物品種資料
+        Route::get( '/show_all_with_customer_species_records' , 'PlanController@show_All_Plans_With_Customer_PetSpecies_PlanUsedRecords' ) ;
+
 
         // 查詢 ( 藉由 _ 客戶身分證字號 ) _ 特定方案 + 客戶資料 + 寵物品種資料
         Route::get( '/show_single_with_customer_species_records/{customerId}' , 'PlanController@show_SinglePlan_With_Customer_PetSpecies_PlanUsedRecords' ) ;
