@@ -53,8 +53,6 @@ class PetController extends Controller{
 
 
 
-
-
     // 部分 _ 寵物，及其客戶 + 關係人
     public function show_Pets_Customers_Relatives( $is_Archive , $data_Num = 50 ){
 
@@ -71,16 +69,12 @@ class PetController extends Controller{
                         ->orderBy( 'pet_id' , 'desc' )     // 前端已經有排序
                         ->get() ;
 
-
     //    $pet_cus = Pet::with( 'customer' , 'customer_relative' )
     //                    ->limit( $data_Num )
     //                    ->where( 'is_archive' , $is_Archive )
     //                    ->orderBy( 'pet_id' , 'desc' )     // 前端已經有排序
     //                    ->get();
 
-       
-       
-       
        return $pet_cus ;
 
     }
@@ -88,7 +82,6 @@ class PetController extends Controller{
 
     // 所有 _ 寵物，及其客戶 + 關係人
     public function show_All_Pets_Customers_Relatives( $is_Archive ){
-
 
         $pet_cus = Pet::with( array( 'customer' => function( $query ){
   
@@ -107,17 +100,9 @@ class PetController extends Controller{
         //                 ->get();
 
 
- 
         return $pet_cus ;
  
      }
-
-
-
-
-
-
-
 
 
     // 取得 _ 目前某品種的所有寵物

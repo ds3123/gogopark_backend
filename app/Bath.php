@@ -56,7 +56,6 @@ class Bath extends Model{
 
     }
 
-
     // ~ 方案 ( Ex. 包月洗澡 ) 使用紀錄
     public function plan(){
 
@@ -64,15 +63,11 @@ class Bath extends Model{
 
     }
 
-
-     // ~ 服務異常
-     public function serviceError(){
+    // ~ 服務異常
+    public function serviceError(){
 
         return $this->hasMany( ServiceErrorRecords::class , 'service_id' , 'bath_id' ) ;
  
-     }
-
-
-
+    }
 
 }
