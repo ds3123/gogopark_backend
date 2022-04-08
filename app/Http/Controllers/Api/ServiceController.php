@@ -47,82 +47,71 @@ class ServiceController extends Controller{
     // 查詢 : 部分 _ 服務 + 客戶 + 客戶關係人 + 寵物 ( 參數 : 是否封存 )
     public function show_With_Cus_Relative_Pet( $is_Archive , $data_Num = 50 ){
 
-        $basic_Arr  = Basic::with( array( 'customer' => function( $query ){
-
-                                                           $query->select( 'name' , 'id' );                                                
-            
-                                                         } ,
-                                           'pet'     => function( $query ){
-
-                                                           $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' );     
-
-                                                        } ) )
-                             ->select( 'basic_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )  
-                             ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期                          
+        $basic_Arr  = Basic::with( [ 
+                                      'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' );  } ,
+                                      'pet'      => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' );  } 
+                                   ] )
+                             ->select( 'customer_id' , 'basic_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' ,
+                                        'basic_fee' , 'self_adjust_amount' , 'pickup_fee' ,
+                                        'amount_payable' , 'amount_paid' , 'payment_type'
+                                        )  
+                             ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期      
                              ->limit( $data_Num )
                              ->where( 'is_archive' , $is_Archive )
                              ->get() ;
 
 
-        $bath_Arr   = Bath::with( array( 'customer' => function( $query ){
-
-                                                           $query->select( 'name' , 'id' );                                                
-
-                                                       } ,
-                                          'pet'     => function( $query ){
-
-                                                           $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' );     
-
-                                                      },
-                                          'plan'   => function( $query ){
-
-                                                           $query->select( 'service_note' );     
-
-                                                      } )  )
-                            ->select( 'bath_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )
-                            ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期    
+        $bath_Arr   = Bath::with( [ 
+                                     'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' );  } ,
+                                     'pet'     => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 
+                                                                                      'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' );  } ,
+                                     'plan'    => function( $query ){  $query->select( 'service_id' , 'service_note' ); } 
+                                  ] )
+                            ->select( 'bath_id' , 'customer_id' , 'bath_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' ,
+                                       'bath_fee' , 'self_adjust_amount' , 'extra_service_fee' , 'extra_beauty_fee' , 'pickup_fee' , 'bath_month_fee' , 
+                                       'amount_payable' , 'amount_paid' , 'payment_type' )
+                            ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期                 
                             ->limit( $data_Num )
                             ->where( 'is_archive' , $is_Archive )
                             ->get() ;
 
 
-        $beauty_Arr = Beauty::with( array( 'customer' => function( $query ){
-
-                                                             $query->select( 'name' , 'id' );                                                
-
-                                                         } ,
-                                           'pet'      => function( $query ){
-
-                                                             $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' );     
-
-                                                         },
-                                           'plan'     => function( $query ){
-
-                                                             $query->select( 'service_note' );     
-
-                                                         } ) )
-                              ->select( 'beauty_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )
-                              ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期    
+        $beauty_Arr = Beauty::with( [  
+                                       'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' ) ; } ,
+                                       'pet'      => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' ,
+                                                                                          'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' ); },
+                                       'plan'     => function( $query ){ $query->select(  'service_id' , 'service_note' );  }
+                                     ] )
+                              ->select(  'beauty_id' , 'customer_id' , 'beauty_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' , 
+                                        'beauty_fee' , 'self_adjust_amount' , 'extra_service_fee' , 'pickup_fee' , 'beauty_month_fee' ,
+                                        'amount_payable' , 'amount_paid' , 'payment_type' )
+                              ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期                
                               ->limit( $data_Num )
                               ->where( 'is_archive' , $is_Archive )
                               ->get() ;
 
 
                               
-        // $basic_Arr  = Basic::with( 'customer' , 'customer_relative' , 'pet' )
-        //                       ->limit( $data_Num )
-        //                       ->where( 'is_archive' , $is_Archive )
-        //                       ->get() ;
- 
-        // $bath_Arr   = Bath::with( 'customer' , 'customer_relative' , 'pet' , 'plan' )
+        // $basic_Arr  = Basic::with( 'customer' , 'pet' )
+        //                      ->select( 'customer_id' , 'basic_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )  
+        //                      ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期      
         //                      ->limit( $data_Num )
         //                      ->where( 'is_archive' , $is_Archive )
         //                      ->get() ;
  
-        // $beauty_Arr = Beauty::with( 'customer' , 'customer_relative' , 'pet' , 'plan' )
-        //                       ->limit( $data_Num )
-        //                       ->where( 'is_archive' , $is_Archive )
-        //                       ->get() ;                      
+        // $bath_Arr   = Bath::with( 'customer' , 'pet' , 'plan' )
+        //                     ->select(  'customer_id' , 'bath_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )
+        //                     ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期  
+        //                     ->limit( $data_Num )
+        //                     ->where( 'is_archive' , $is_Archive )
+        //                     ->get() ;
+ 
+        // $beauty_Arr = Beauty::with( 'customer'  , 'pet' , 'plan' )
+        //                     ->select( 'customer_id' , 'beauty_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )
+        //                     ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期    
+        //                     ->limit( $data_Num )
+        //                     ->where( 'is_archive' , $is_Archive )
+        //                     ->get() ;                      
 
         
         
@@ -132,6 +121,7 @@ class ServiceController extends Controller{
         forEach( $bath_Arr as $bath ){     $arr[] = $bath;   }
         forEach( $beauty_Arr as $beauty ){ $arr[] = $beauty; }
 
+
         return $arr ;
 
     }
@@ -140,75 +130,66 @@ class ServiceController extends Controller{
     public function show_All_With_Cus_Relative_Pet( $is_Archive ){
 
 
-        $basic_Arr  = Basic::with( array( 'customer' => function( $query ){
-
-                                                             $query->select( 'name' , 'id' );                                                
-
-                                                        } ,
-                                          'pet'      => function( $query ){
-
-                                                             $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' );     
-
-                                                        } ) )
-                             ->select( 'basic_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )                           
+        $basic_Arr  = Basic::with( [ 
+                                       'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' );  } ,
+                                       'pet'      => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' ); } 
+                                    ] )
+                             ->select( 'customer_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' ,
+                                        'basic_fee' , 'self_adjust_amount' , 'pickup_fee' , 
+                                        'amount_payable' , 'amount_paid' , 'payment_type' )  
+                             ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期                 
                              ->where( 'is_archive' , $is_Archive )
                              ->get() ;
 
-        $bath_Arr   = Bath::with( array( 'customer' => function( $query ){
-
-                                                            $query->select( 'name' , 'id' );                                                
-
-                                                        } ,
-                                         'pet'      => function( $query ){
-
-                                                            $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' );     
-
-                                                       },
-                                         'plan'    => function( $query ){
-
-                                                            $query->select( 'service_note' );     
-
-                                                      } ) )
-                            ->select( 'bath_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )                          
+        $bath_Arr   = Bath::with( [ 
+                                      'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' ); } ,
+                                      'pet'      => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' ,
+                                                                                        'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' ); } ,
+                                      'plan'     => function( $query ){ $query->select( 'service_id' , 'service_note' ); } 
+                                  ] )
+                            ->select( 'bath_id' , 'customer_id'  , 'service_type' , 'service_date' , 'q_code' , 'pet_id' ,
+                                      'bath_fee' , 'self_adjust_amount' , 'extra_service_fee' , 'extra_beauty_fee' , 'pickup_fee' , 'bath_month_fee' ,
+                                      'amount_payable' , 'amount_paid' , 'payment_type' ) 
+                            ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期      
+                            ->limit( 500 )        // 先限制在 500 筆資料  2022.04.06   
                             ->where( 'is_archive' , $is_Archive )
                             ->get() ;
 
-        $beauty_Arr = Beauty::with( array( 'customer' => function( $query ){
-
-                                                             $query->select( 'name' , 'id' );                                                
-
-                                                          } ,
-                                            'pet'     => function( $query ){
-
-                                                             $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' );     
-
-                                                         } ,
-                                            'plan'   => function( $query ){
-
-                                                             $query->select( 'service_note' );     
-
-                                                        } ))
-                              ->select( 'beauty_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )
+        $beauty_Arr = Beauty::with( [
+                                      'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' ); } ,
+                                      'pet'      => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 
+                                                                                        'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' );  } ,
+                                      'plan'     => function( $query ){ $query->select( 'service_id' , 'service_note' );  } 
+                                    ] )
+                              ->select( 'beauty_id' ,'customer_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' , 
+                                        'beauty_fee' , 'self_adjust_amount' , 'extra_service_fee' , 'pickup_fee' , 'beauty_month_fee' ,
+                                        'amount_payable' , 'amount_paid' , 'payment_type'
+                                      )
+                              ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期      
+                              ->limit( 500 )     // 先限制在 500 筆資料  2022.04.06     
                               ->where( 'is_archive' , $is_Archive )
                               ->get() ;
 
 
-        // $basic_Arr  = Basic::with( 'customer' , 'customer_relative' , 'pet' )
-        //                       ->where( 'is_archive' , $is_Archive )
-        //                       ->get() ;
- 
-        // $bath_Arr   = Bath::with( 'customer' , 'customer_relative' , 'pet' , 'plan' )
+
+        // $basic_Arr  = Basic::with( 'customer' , 'pet' )
+        //                      ->select(  'customer_id' , 'basic_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' ) 
         //                      ->where( 'is_archive' , $is_Archive )
         //                      ->get() ;
  
-        // $beauty_Arr = Beauty::with( 'customer' , 'customer_relative' , 'pet' , 'plan' )
-        //                        ->where( 'is_archive' , $is_Archive )
-        //                        ->get() ;                      
+        // $bath_Arr   = Bath::with( 'customer' , 'pet' , 'plan' )
+        //                     ->select( 'customer_id' , 'bath_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' ) 
+        //                     ->where( 'is_archive' , $is_Archive )
+        //                     ->get() ;
+ 
+        // $beauty_Arr = Beauty::with( 'customer' , 'pet' , 'plan' )
+        //                       ->select( 'customer_id' , 'beauty_id' , 'service_type' , 'service_date' , 'q_code' , 'pet_id' )
+        //                       ->where( 'is_archive' , $is_Archive )
+        //                       ->get() ;                      
 
 
 
         $arr        = array() ;
-
         forEach( $basic_Arr as $basic ){   $arr[] = $basic;  }
         forEach( $bath_Arr as $bath ){     $arr[] = $bath;   }
         forEach( $beauty_Arr as $beauty ){ $arr[] = $beauty; }

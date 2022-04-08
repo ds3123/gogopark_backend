@@ -168,7 +168,7 @@ class CustomerController extends Controller{
                                          
                                                            } 
                                                ))
-                                       ->select( 'name' , 'id'  , 'mobile_phone' , 'address' , 'created_at' )  // 僅查詢客戶特定欄位 
+                                       ->select(  'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'created_at' )  // 僅查詢客戶特定欄位 
                                        ->limit( $data_Num )
                                        ->where( 'is_archive' , $is_Archive )
                                        ->orderBy( 'customer_id' , 'desc' )                
@@ -198,7 +198,7 @@ class CustomerController extends Controller{
                                                             } 
                                                    
                                                ))
-                                       ->select( 'name' , 'id'  , 'mobile_phone' , 'address' , 'created_at' )  // 僅查詢客戶特定欄位 
+                                       ->select( 'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'created_at' )  // 僅查詢客戶特定欄位 
                                        ->where( 'is_archive' , $is_Archive )
                                        ->orderBy( 'customer_id' , 'desc' )                
                                        ->get() ;
