@@ -24,18 +24,32 @@ class PlanUsedRecordsController extends Controller {
 
     }
 
-    public function update( Request $request , $id ) {
+    public function update( Request $request , $id ){
 
         PlanUsedRecords::findOrFail( $id )->update( $request->all() ) ;
         return '修改 _ 使用紀錄成功' ;
 
     }
 
-    public function destroy($id) {
+    public function destroy($id){
 
         PlanUsedRecords::findOrFail( $id )->delete() ;
         return '刪除 _ 使用紀錄成功' ;
 
     }
+
+    // ------------------------ 
+
+   
+    // 查詢 _ 特定方案使用紀錄( 包含該紀錄 洗澡 / 美容 的服務內容 )
+    public function show_Sigle_PlanUsedRecord_With_Service( $record_Id ){
+
+        return PlanUsedRecords::with( 'bath' , 'beauty' )->where( 'id' ,  $record_Id )->first();
+
+    }
+
+
+
+
 
 }

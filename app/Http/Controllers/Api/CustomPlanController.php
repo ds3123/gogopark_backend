@@ -39,7 +39,7 @@ class CustomPlanController extends Controller{
     // @ 自訂函式 --------------------------------------------------------
 
     // 搜尋 : 自訂方案 : 名稱    
-    public function show_By_Plan_Name(  $param ){
+    public function show_By_Plan_Name( $param ){
 
         return CustomPlan::where( 'plan_name'  , $param )->get() ;
 

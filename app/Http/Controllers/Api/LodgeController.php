@@ -62,7 +62,8 @@ class LodgeController extends Controller {
    // 查詢住宿單，相對應的 : 住宿消費紀錄
    public function show_Pet_Records( $pet_Serial ){
 
-        return Lodge::where( 'pet_id' , $pet_Serial )
+        return Lodge::with( "customer" , "pet" )
+                    ->where( 'pet_id' , $pet_Serial )
                     ->get() ;
 
    }

@@ -59,11 +59,11 @@ class PetController extends Controller{
 
        $pet_cus = Pet::with( array( 'customer' => function( $query ){
   
-                                                     $query->select(  'name' , 'id'  , 'mobile_phone' ) ;     
+                                                     $query->select(  'name' , 'id'  , 'mobile_phone' , 'is_rejected' ) ;     
 
                                                   }  
                                     ))
-                        ->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'created_at' )            
+                        ->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_rejected' , 'is_dead' , 'created_at' )            
                         ->limit( $data_Num )
                         ->where( 'is_archive' , $is_Archive )
                         ->orderBy( 'pet_id' , 'desc' )     // 前端已經有排序
@@ -85,11 +85,11 @@ class PetController extends Controller{
 
         $pet_cus = Pet::with( array( 'customer' => function( $query ){
   
-                                                       $query->select( 'name' , 'id'  , 'mobile_phone' ) ;     
+                                                       $query->select( 'name' , 'id'  , 'mobile_phone' , 'is_rejected' ) ;     
  
                                                    }  
                             ))
-                        ->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'created_at' )
+                        ->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_rejected' , 'is_dead' , 'created_at' )
                         ->where( 'is_archive' , $is_Archive )
                         ->orderBy( 'pet_id' , 'desc' )    // 前端已經有排序
                         ->get() ;

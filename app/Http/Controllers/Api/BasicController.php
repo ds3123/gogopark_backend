@@ -99,7 +99,8 @@ class BasicController extends Controller {
    // 查詢洗澡單，相對應的 : 寵物基礎消費紀錄
    public function show_Pet_Records( $pet_Serial ){
 
-      return Basic::where( 'pet_id' , $pet_Serial )
+      return Basic::with( "customer" , "pet" )
+                   ->where( 'pet_id' , $pet_Serial )
                    ->get() ;
 
   }

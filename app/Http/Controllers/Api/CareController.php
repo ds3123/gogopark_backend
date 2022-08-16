@@ -59,7 +59,8 @@ class CareController extends Controller {
     // 查詢安親單，相對應的 : 安親消費紀錄
     public function show_Pet_Records( $pet_Serial ){
 
-         return Care::where( 'pet_id' , $pet_Serial )
+         return Care::with( "customer" , "pet" )
+                     ->where( 'pet_id' , $pet_Serial )
                      ->get() ;
 
     }

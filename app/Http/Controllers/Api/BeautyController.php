@@ -79,8 +79,9 @@ class BeautyController extends Controller{
    // 查詢美容單，相對應的 : 寵物美容消費紀錄
    public function show_Pet_Records( $pet_Serial ){
 
-        return Beauty::where( 'pet_id' , $pet_Serial )
-                    ->get() ;
+        return Beauty::with( "customer" , "pet" )
+                     ->where( 'pet_id' , $pet_Serial )
+                     ->get() ;
 
    }
 

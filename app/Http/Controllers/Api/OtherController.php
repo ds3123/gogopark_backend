@@ -38,13 +38,14 @@ class OtherController extends Controller{
 
    // ---------------------------------------------------------
 
-
-    // 查詢 _ "特定日期"其他收支資料
-    public function show_Plans_By_Date( $date ){
+ 
+    // 查詢 _ 特定日期 ( 建檔日期 : created_at ) , 收支  
+    public function show_Others_By_Date( $date ){
 
         return Other::where( 'created_at' , 'like'  , $date.'%' )->get() ;
   
-     }
+    }
+
 
 
 }

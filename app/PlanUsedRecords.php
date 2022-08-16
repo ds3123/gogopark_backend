@@ -12,5 +12,30 @@ class PlanUsedRecords extends Model {
 
     // ------------------------------------------------------------------------
 
+    // @類型 : 建立關係
+
+    // 洗澡單資料 ( bath )
+    public function bath(){
+
+       return $this->belongsTo( Bath::class , 'service_id' , 'bath_id' ) ;
+
+    }
+
+    // 美容單資料 ( beauty )
+    public function beauty(){
+
+       return $this->belongsTo( Beauty::class , 'service_id' , 'beauty_id' ) ;
+ 
+    }
+
+
+
+
+
+
+
+
+
+
 
 }

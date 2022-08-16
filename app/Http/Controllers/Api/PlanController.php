@@ -92,8 +92,9 @@ class PlanController extends Controller {
     // 查詢方案單，相對應的 : 方案消費紀錄 ( 與以上類似，考慮整合 2022.01.19 )
     public function show_Pet_Records( $pet_Serial ){
 
-        return Plan::where( 'apply_pet_serial' , $pet_Serial )
-                   ->get() ;
+        return Plan::with( "customer" , "pet" )
+                    ->where( 'apply_pet_serial' , $pet_Serial )
+                    ->get() ;
 
     }
 
@@ -106,10 +107,19 @@ class PlanController extends Controller {
     }
 
 
-    // 查詢 _ 特定日期購買的方案
+    // 查詢 _ 特定日期 ( 建檔日期 )，購買的方案
     public function show_Plans_By_Date( $date ){
 
        return Plan::where( 'created_at' , 'like'  , $date.'%' )
+                    ->with( 'customer' , 'pet' )
+                    ->get() ;
+ 
+    }
+    
+    // 查詢 _ 特定日期（ 付款日期 ），購買的方案
+    public function show_Plans_By_Paymentdate( $date ){
+
+       return Plan::where( 'payment_date' , 'like'  , $date.'%' )
                     ->with( 'customer' , 'pet' )
                     ->get() ;
  

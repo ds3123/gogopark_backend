@@ -151,7 +151,7 @@ class CustomerController extends Controller{
     public function show_Customers_Pets(){
 
        $cus_pet = Customer::with( 'pets' )->orderBy( 'created_at' , 'desc' )->get();
-       $cus_pet = Customer::with( 'pets' )->orderBy( 'created_at' , 'desc' )->get();
+     
        // $cus_pet = Customer::with( 'pets' )->get() ;
        return $cus_pet ? $cus_pet : [] ;
 
@@ -162,13 +162,11 @@ class CustomerController extends Controller{
     public function show_Customers_Relatives_Pets( $is_Archive , $data_Num = 50 ){
 
 
-      $cus_relative_pet = Customer::with( array( 'pets' => function( $query ){
-  
-                                                             $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color'  ) ;     
-                                         
-                                                           } 
-                                               ))
-                                       ->select(  'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'created_at' )  // 僅查詢客戶特定欄位 
+      $cus_relative_pet = Customer::with( [ 
+                                             'pets'              => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_dead' , 'is_rejected'  ) ; } ,
+                                             'customer_relation' => function( $query ){ $query->select( 'customer_id' , 'name' , 'tag'  , 'mobile_phone' , 'tel_phone' ,  'is_archive' ) ;  } 
+                                          ])
+                                       ->select(  'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'is_rejected' , 'created_at' )  // 僅查詢客戶特定欄位 
                                        ->limit( $data_Num )
                                        ->where( 'is_archive' , $is_Archive )
                                        ->orderBy( 'customer_id' , 'desc' )                
@@ -191,14 +189,11 @@ class CustomerController extends Controller{
     public function show_All_Customers_Relatives_Pets( $is_Archive ){
 
 
-       $cus_relative_pet = Customer::with( array( 'pets' => function( $query ){
-  
-                                                               $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' ) ;     
-                                         
-                                                            } 
-                                                   
-                                               ))
-                                       ->select( 'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'created_at' )  // 僅查詢客戶特定欄位 
+       $cus_relative_pet = Customer::with( [ 
+                                             'pets'              => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_dead' , 'is_rejected'  ) ;  } ,
+                                             'customer_relation' => function( $query ){ $query->select( 'customer_id' , 'name' , 'tag'  , 'mobile_phone' , 'tel_phone' , 'is_archive'  ) ; } 
+                                           ])
+                                       ->select( 'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'is_rejected' , 'created_at' )  // 僅查詢客戶特定欄位 
                                        ->where( 'is_archive' , $is_Archive )
                                        ->orderBy( 'customer_id' , 'desc' )                
                                        ->get() ;

@@ -75,8 +75,6 @@ Route::namespace('Api')->group(function(){
             // 特定客戶 _ 關係人 ( 依 : 客戶身分證字號 ) ( 有問題 )
             Route::delete('/destroy_relation_by_cus_id/{cus_Id}' , 'CustomerController@destroy_Relation_By_Customer_Id') ;
 
-
-
      });
 
      Route::apiResource( '/customers' , 'CustomerController' );
@@ -198,8 +196,13 @@ Route::namespace('Api')->group(function(){
         // 查詢 : 特定日期，各項服務已使用 Q 碼 
         Route::get( '/show_qcode/{date}' , 'ServiceController@show_Date_Qcode' );
 
-        // 查詢 : 特定日期，所有服務資料( 基礎、洗澡、美容 )
+        // 查詢 : 特定 “到店日期”，所有服務資料( 基礎、洗澡、美容 )
         Route::get( '/show_services/{date}' , 'ServiceController@show_Date_Services' );
+
+
+        // 查詢 : 特定 “付款日期”，所有服務資料( 基礎、洗澡、美容、安親、住宿 )
+        Route::get( '/show_services_by_paymentdate/{date}' , 'ServiceController@show_Services_By_Paymentdate' );
+
 
         // 查詢 : 特定日期【 之後 】，所有服務資料( 基礎、洗澡、美容 )
         Route::get( '/show_after_services/{date}' , 'ServiceController@show_After_Date_Services' );
@@ -314,6 +317,19 @@ Route::namespace('Api')->group(function(){
 
      Route::apiResource( '/service_prices' , 'ServicePriceController' );
 
+
+
+     // @ 帳號 -----------------------------------------------------------------------------------
+
+     Route::group( ['prefix' => 'accounts'] , function (){
+
+
+      
+     }) ; 
+
+     Route::apiResource( '/accounts' , 'AccountController' ) ;
+
+
      // @ 員工 -----------------------------------------------------------------------------------
 
      Route::group( ['prefix' => 'employees'] , function (){
@@ -378,8 +394,14 @@ Route::namespace('Api')->group(function(){
         // 查詢 _ 特定寵物 : 方案紀錄
         Route::get( '/show_pet_plans/{pet_Serial}/{pet_Type}' , 'PlanController@show_Pet_Plans' ) ;
 
-        // 查詢 _ 特定日期購買的方案 
+        // 查詢 _ 特定日期 ( 建檔日期 ：created_at )，購買的方案 
         Route::get( '/show_plans_by_date/{date}' , 'PlanController@show_Plans_By_Date' ) ;
+      
+      
+        // 查詢 _ 特定日期 ( 付款日期 : payment_date )，購買的方案 
+        Route::get( '/show_plans_by_paymentdate/{date}' , 'PlanController@show_Plans_By_Paymentdate' ) ;
+
+
 
     }) ;
 
@@ -399,6 +421,15 @@ Route::namespace('Api')->group(function(){
 
     
     // @ 方案 ( 使用紀錄 ) ----------------------------------------------------
+
+    Route::group( [ 'prefix' => 'plan_records' ] , function (){
+
+       // 查詢 _ 特定方案使用紀錄( 包含該紀錄 洗澡 / 美容 的服務內容 )
+       Route::get( '/show_sigle_plan_used_record_with_service/{record_Id}' , 'PlanUsedRecordsController@show_Sigle_PlanUsedRecord_With_Service' ) ;
+     
+    }) ;
+
+
     Route::apiResource( '/plan_records' , 'PlanUsedRecordsController' ) ;
 
 
@@ -469,11 +500,10 @@ Route::namespace('Api')->group(function(){
     Route::group( [ 'prefix' => 'others' ] , function (){
 
     
-      // 查詢 _ 特定日期購買的方案 
-      Route::get( '/show_others_by_date/{date}' , 'OtherController@show_Plans_By_Date' ) ;
-
-
-
+      // 查詢 _ 特定日期 ( 建檔日期 : created_at ) , 收支  
+      Route::get( '/show_others_by_date/{date}' , 'OtherController@show_Others_By_Date' ) ;
+     
+     
     }) ;
 
     Route::apiResource( '/others' , 'OtherController' ) ;

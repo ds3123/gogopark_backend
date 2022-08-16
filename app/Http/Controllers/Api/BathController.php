@@ -68,7 +68,8 @@ class BathController extends Controller {
     // 查詢洗澡單，相對應的 : 寵物洗澡消費紀錄
     public function show_Pet_Records( $pet_Serial ){
 
-        return Bath::where( 'pet_id' , $pet_Serial )
+        return Bath::with( "customer" , "pet" )
+                     ->where( 'pet_id' , $pet_Serial )
                      ->get() ;
 
     }
