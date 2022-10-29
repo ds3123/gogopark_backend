@@ -50,17 +50,17 @@ Route::namespace('Api')->group(function(){
             // & 多對多關係 :
             Route::get('/show_customers_pets' , 'CustomerController@show_Customers_Pets') ;  // 所有客戶(s) 及其寵物(s)
 
-            Route::get('/show_customers_relatives_pets/{is_Archive}/{data_Num}' , 'CustomerController@show_Customers_Relatives_Pets') ; // 部分客戶(s) 及其寵物(s)
+            Route::get('/show_customers_relatives_pets/{account_id}/{is_Archive}/{data_Num}' , 'CustomerController@show_Customers_Relatives_Pets') ; // 部分客戶(s) 及其寵物(s)
 
-            Route::get('/show_all_customers_relatives_pets/{is_Archive}' , 'CustomerController@show_All_Customers_Relatives_Pets') ;    // 所有客戶(s) 及其寵物(s)
+            Route::get('/show_all_customers_relatives_pets/{account_id}/{is_Archive}' , 'CustomerController@show_All_Customers_Relatives_Pets') ;    // 所有客戶(s) 及其寵物(s)
 
 
-          // # 新增 ------
+            // # 新增 ------
 
             // 特定客戶 _ 關係人
             Route::post('/store_relation' , 'CustomerController@store_Relation') ;
 
-          // # 更新 ------
+            // # 更新 ------
 
             // 特定客戶 _ 關係人
             Route::put('/update_relation/{relation_id}' , 'CustomerController@update_Relation') ;
@@ -89,10 +89,10 @@ Route::namespace('Api')->group(function(){
         Route::get( '/show_pets_customers/' , 'PetController@show_Pets_Customers' ) ;
 
         // 查詢 : 部分 _ 寵物 (s) 及其主人 + 關係人
-        Route::get( '/show_pets_customers_relatives/{is_Archive}/{data_Num}' , 'PetController@show_Pets_Customers_Relatives' ) ;
+        Route::get( '/show_pets_customers_relatives/{account_id}/{is_Archive}/{data_Num}' , 'PetController@show_Pets_Customers_Relatives' ) ;
 
         // 查詢 : 所有 _ 寵物 (s) 及其主人 + 關係人
-        Route::get( '/show_all_pets_customers_relatives/{is_Archive}' , 'PetController@show_All_Pets_Customers_Relatives' ) ;
+        Route::get( '/show_all_pets_customers_relatives/{account_id}/{is_Archive}' , 'PetController@show_All_Pets_Customers_Relatives' ) ;
 
         // 查詢 : 目前某品種的所有寵物
         Route::get( '/show_current_pet_species/{species_Name}' , 'PetController@show_Current_Pet_Species' ) ;
@@ -197,7 +197,7 @@ Route::namespace('Api')->group(function(){
         Route::get( '/show_qcode/{date}' , 'ServiceController@show_Date_Qcode' );
 
         // 查詢 : 特定 “到店日期”，所有服務資料( 基礎、洗澡、美容 )
-        Route::get( '/show_services/{date}' , 'ServiceController@show_Date_Services' );
+        Route::get( '/show_services/{account_id}/{date}' , 'ServiceController@show_Date_Services' );
 
 
         // 查詢 : 特定 “付款日期”，所有服務資料( 基礎、洗澡、美容、安親、住宿 )
@@ -218,10 +218,10 @@ Route::namespace('Api')->group(function(){
 
 
         // 查詢 : 部分 _ 各項服務 + 客戶 + 客戶關係人 + 寵物 --> 是否封存 
-        Route::get( '/show_with_cus_relative_pet/{is_Archive}/{data_Num}' , 'ServiceController@show_With_Cus_Relative_Pet' );
+        Route::get( '/show_with_cus_relative_pet/{account_id}/{is_Archive}/{data_Num}' , 'ServiceController@show_With_Cus_Relative_Pet' );
 
         // 查詢 : 所有 _ 各項服務 + 客戶 + 客戶關係人 + 寵物 --> 是否封存 
-        Route::get( '/show_all_with_cus_relative_pet/{is_Archive}' , 'ServiceController@show_All_With_Cus_Relative_Pet' );
+        Route::get( '/show_all_with_cus_relative_pet/{account_id}/{is_Archive}' , 'ServiceController@show_All_With_Cus_Relative_Pet' );
 
 
         // 查詢 : 各項服務 + 客戶 + 客戶關係人 + 寵物 --> 是否異常 
@@ -235,7 +235,7 @@ Route::namespace('Api')->group(function(){
 
  
         // 查詢 : 各項服務 + 客戶 + 客戶關係人 + 寵物 --> 是否在 "已回家( 房 )" 情況
-        Route::get( '/show_services_is_gohome_by_date/{date}' , 'ServiceController@show_Services_Is_GoHome_By_Date' );
+        Route::get( '/show_services_is_gohome_by_date/{account_id}/{date}' , 'ServiceController@show_Services_Is_GoHome_By_Date' );
 
 
      }) ;
@@ -324,6 +324,12 @@ Route::namespace('Api')->group(function(){
      Route::group( ['prefix' => 'accounts'] , function (){
 
 
+
+       // 查詢 : 特定郵遞區號下，所有商家帳號 ( 包含商家所屬員工 )
+       Route::get( '/show_accounts_with_employees_by_zipcode/{zipcode}' , 'AccountController@show_Accounts_With_Employees_By_Zipcode' ) ;
+
+
+
       
      }) ; 
 
@@ -335,8 +341,16 @@ Route::namespace('Api')->group(function(){
      Route::group( ['prefix' => 'employees'] , function (){
 
 
-      // 查詢 : 為特定帳號的員工 ( Ex. for 檢查新增員工時，帳號是否重複 )
-      Route::get( '/show_employee_with_account/{account}' , 'EmployeeController@show_Employee_With_Account' ) ;
+       // 查詢 : 為特定帳號的員工 ( Ex. for 檢查新增員工時，帳號是否重複 )
+       Route::get( '/show_employee_with_account/{account}' , 'EmployeeController@show_Employee_With_Account' ) ;
+
+
+       // 查詢 : 為特定 id 的員工 ( 包含其所屬 _ 商店資料 )
+       Route::get( '/show_employee_with_account_by_employee_id/{employee_id}' , 'EmployeeController@show_Employee_With_Account_By_EmployeeId' ) ;
+
+
+       // 查詢 : 所有員工 ( 包含其所屬 _ 商店資料 )
+       Route::get( '/show_all_employees_with_account' , 'EmployeeController@show_All_Employees_With_Account' ) ;
 
 
 
@@ -370,11 +384,11 @@ Route::namespace('Api')->group(function(){
 
 
         // 查詢 _ 部分：方案 + 客戶資料 + 寵物品種資料
-        Route::get( '/show_with_customer_species_records/{data_Num}' , 'PlanController@show_Plans_With_Customer_PetSpecies_PlanUsedRecords' ) ;
+        Route::get( '/show_with_customer_species_records/{account_id}/{data_Num}' , 'PlanController@show_Plans_With_Customer_PetSpecies_PlanUsedRecords' ) ;
 
 
         // 查詢 _ 所有：方案 + 客戶資料 + 寵物品種資料
-        Route::get( '/show_all_with_customer_species_records' , 'PlanController@show_All_Plans_With_Customer_PetSpecies_PlanUsedRecords' ) ;
+        Route::get( '/show_all_with_customer_species_records/{account_id}' , 'PlanController@show_All_Plans_With_Customer_PetSpecies_PlanUsedRecords' ) ;
 
 
         // 查詢 ( 藉由 _ 客戶身分證字號 ) _ 特定方案 + 客戶資料 + 寵物品種資料
@@ -451,7 +465,7 @@ Route::namespace('Api')->group(function(){
     Route::group( [ 'prefix' => 'lodges' ] , function (){
 
         // 查詢 : 所有住宿 + 客戶 + 客戶關係人 + 寵物
-        Route::get( '/show_with_cus_relative_pet/{is_Archive}' , 'LodgeController@show_With_Cus_Relative_Pet' );
+        Route::get( '/show_with_cus_relative_pet/{account_id}/{is_Archive}' , 'LodgeController@show_With_Cus_Relative_Pet' );
 
         // 查詢 : 特定客戶身分證字號，所有住宿紀錄
         Route::get( '/show_customer_id/{id}' , 'LodgeController@show_Customer_ID' ) ;
@@ -470,7 +484,7 @@ Route::namespace('Api')->group(function(){
     Route::group( [ 'prefix' => 'cares' ] , function (){
 
         // 查詢 : 所有安親 + 客戶 + 客戶關係人 + 寵物
-        Route::get( '/show_with_cus_relative_pet/{is_Archive}' , 'CareController@show_With_Cus_Relative_Pet' );
+        Route::get( '/show_with_cus_relative_pet/{account_id}/{is_Archive}' , 'CareController@show_With_Cus_Relative_Pet' );
 
         // 查詢 : 特定客戶身分證字號，所有安親紀錄
         Route::get( '/show_customer_id/{id}' , 'CareController@show_Customer_ID' ) ;

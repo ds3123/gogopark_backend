@@ -33,6 +33,23 @@ class AccountController extends Controller {
 
     /* 自訂查詢 ----------------------------------------------------------------------------- */
 
+    
+    public function show_Accounts_With_Employees_By_Zipcode( $zipcode ){
+
+        return Account::with( 'shop_employees' )
+                        ->where( 'zipcode' , $zipcode )
+                        ->get() ;
+
+     }
+
+
+
+
+
+
+
+
+
 
 
 }

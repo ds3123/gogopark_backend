@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-
 use App\Basic ;   // 匯入 Basic Model
 use App\Bath ;    // 匯入 Bath Model
 use App\Beauty ;  // 匯入 Beauty Model
@@ -45,7 +44,7 @@ class ServiceController extends Controller{
 
 
     // 查詢 : 部分 _ 服務 + 客戶 + 客戶關係人 + 寵物 ( 參數 : 是否封存 )
-    public function show_With_Cus_Relative_Pet( $is_Archive , $data_Num = 50 ){
+    public function show_With_Cus_Relative_Pet( $account_id = 1 , $is_Archive , $data_Num = 50 ){
 
         $basic_Arr  = Basic::with( [ 
                                       'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' );  } ,
@@ -56,6 +55,7 @@ class ServiceController extends Controller{
                              //           'amount_payable' , 'amount_paid' , 'payment_type' , 'beautician_note' , 'created_at' )  
                              ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期      
                              ->limit( $data_Num )
+                             ->where( 'account_id' , $account_id )
                              ->where( 'is_archive' , $is_Archive )
                              ->get() ;
 
@@ -71,6 +71,7 @@ class ServiceController extends Controller{
                             //            'amount_payable' , 'amount_paid' , 'payment_type' , 'beautician_note' , 'created_at' )
                             ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期                 
                             ->limit( $data_Num )
+                            ->where( 'account_id' , $account_id )
                             ->where( 'is_archive' , $is_Archive )
                             ->get() ;
 
@@ -86,6 +87,7 @@ class ServiceController extends Controller{
                             //             'amount_payable' , 'amount_paid' , 'payment_type' , 'beautician_note' , 'created_at' )
                               ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期                
                               ->limit( $data_Num )
+                              ->where( 'account_id' , $account_id )
                               ->where( 'is_archive' , $is_Archive )
                               ->get() ;
 
@@ -126,7 +128,7 @@ class ServiceController extends Controller{
     }
 
     // 查詢 : 所有 _ 服務 + 客戶 + 客戶關係人 + 寵物 ( 參數 : 是否封存 )
-    public function show_All_With_Cus_Relative_Pet( $is_Archive ){
+    public function show_All_With_Cus_Relative_Pet( $account_id = 1 , $is_Archive ){
 
 
         $basic_Arr  = Basic::with( [ 
@@ -137,8 +139,10 @@ class ServiceController extends Controller{
                             //             'basic_fee' , 'self_adjust_amount' , 'pickup_fee' , 
                             //             'amount_payable' , 'amount_paid' , 'payment_type' , 'beautician_note' , 'created_at' )  
                              ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期                 
+                             ->where( 'account_id' , $account_id )
                              ->where( 'is_archive' , $is_Archive )
                              ->get() ;
+
 
         $bath_Arr   = Bath::with( [ 
                                       'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' ); } ,
@@ -151,8 +155,10 @@ class ServiceController extends Controller{
                             //           'amount_payable' , 'amount_paid' , 'payment_type' , 'beautician_note' , 'created_at' ) 
                             ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期      
                             ->limit( 500 )        // 先限制在 500 筆資料  2022.04.06   
+                            ->where( 'account_id' , $account_id )
                             ->where( 'is_archive' , $is_Archive )
                             ->get() ;
+
 
         $beauty_Arr = Beauty::with( [
                                       'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' ); } ,
@@ -165,6 +171,7 @@ class ServiceController extends Controller{
                             //             'amount_payable' , 'amount_paid' , 'payment_type' , 'beautician_note'  , 'created_at' )
                               ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期      
                               ->limit( 500 )     // 先限制在 500 筆資料  2022.04.06     
+                              ->where( 'account_id' , $account_id )
                               ->where( 'is_archive' , $is_Archive )
                               ->get() ;
 
@@ -300,21 +307,24 @@ class ServiceController extends Controller{
     }
 
     
-    // 特定日期， 是否在 "已回家( 房 )" 情況的服務單
-    public function show_Services_Is_GoHome_By_Date( $date ){
+    // 特定日期， 是否在 "已回家( 房 )" 情況的服務單 ( 基礎、洗澡、美容」 )
+    public function show_Services_Is_GoHome_By_Date( $account_id = 1 , $date ){
 
 
         $basic_Arr  = Basic::with( 'customer' , 'pet' )
-                           ->where( 'service_date' ,  $date )
-                           ->where( 'shop_status' ,  '已回家( 房 )' )
-                           ->get() ;
+                             ->where( 'account_id' , $account_id )
+                             ->where( 'service_date' ,  $date )
+                             ->where( 'shop_status' ,  '已回家( 房 )' )
+                             ->get() ;
 
         $bath_Arr   = Bath::with( 'customer' , 'pet'  )
-                           ->where( 'service_date' , $date )
-                           ->where( 'shop_status' ,  '已回家( 房 )' )
-                           ->get() ;
+                            ->where( 'account_id' , $account_id )
+                            ->where( 'service_date' , $date )
+                            ->where( 'shop_status' ,  '已回家( 房 )' )
+                            ->get() ;
 
         $beauty_Arr = Beauty::with( 'customer' , 'pet' )
+                            ->where( 'account_id' , $account_id )
                             ->where( 'service_date' , $date )
                             ->where( 'shop_status' ,  '已回家( 房 )' )
                             ->get() ;
@@ -329,7 +339,6 @@ class ServiceController extends Controller{
 
     
     }    
-
 
 
     // 查詢 : 特定日期，各項服務已使用 Q 碼 (s)
@@ -363,32 +372,57 @@ class ServiceController extends Controller{
     }
 
     // 查詢 : 特定 “到店日期”，所有服務資料( Ex. 基礎、洗澡、美容、安親、住宿 )
-    public function show_Date_Services( $date ){
+    public function show_Date_Services( $account_id = 1 , $date ){
 
         // 基礎
-        $data_Basic = Basic::with( 'customer' , 'customer_relative' , 'pet' )->where( 'service_date' , $date )->get() ;
+        $data_Basic = Basic::with( 'customer' , 'customer_relative' , 'pet' )
+                             ->where( 'account_id' , $account_id )
+                             ->where( 'service_date' , $date )
+                             ->get() ;
+
         $s_Basic    = array();
         foreach( $data_Basic as $obj ){ $s_Basic[] = $obj ; }
 
+
         // 洗澡
-        $data_Bath = Bath::with( 'customer' , 'customer_relative' , 'pet' , 'plan' )->where( 'service_date' , $date )->get() ;
+        $data_Bath = Bath::with( 'customer' , 'customer_relative' , 'pet' , 'plan' )
+                           ->where( 'account_id' , $account_id )
+                           ->where( 'service_date' , $date )
+                           ->get() ;
+
         $s_Bath    = array();
         foreach( $data_Bath  as $obj ){ $s_Bath[] = $obj ; }
 
+
         // 美容
-        $data_Beauty = Beauty::with( 'customer' , 'customer_relative' , 'pet' , 'plan' )->where( 'service_date' , $date )->get() ;
+        $data_Beauty = Beauty::with( 'customer' , 'customer_relative' , 'pet' , 'plan' )
+                               ->where( 'account_id' , $account_id )  
+                               ->where( 'service_date' , $date )
+                               ->get() ;
+
         $s_Beauty    = array();
         foreach( $data_Beauty  as $obj ){ $s_Beauty[] = $obj ; }
 
+
         // 安親
-        $data_Care = Care::with( 'customer' , 'customer_relative' , 'pet' )->where( 'start_date' , $date )->get() ;
+        $data_Care = Care::with( 'customer' , 'customer_relative' , 'pet' )
+                           ->where( 'account_id' , $account_id )  
+                           ->where( 'start_date' , $date )
+                           ->get() ;
+
         $s_Care    = array();
         foreach( $data_Care  as $obj ){ $s_Care[] = $obj ; }
 
+
         // 住宿
-        $data_Lodge = Lodge::with( 'customer' , 'customer_relative' , 'pet' )->where( 'start_date' , $date )->get() ;
+        $data_Lodge = Lodge::with( 'customer' , 'customer_relative' , 'pet' )
+                             ->where( 'account_id' , $account_id ) 
+                             ->where( 'start_date' , $date )
+                             ->get() ;
+
         $s_Lodge    = array();
         foreach(  $data_Lodge  as $obj ){ $s_Lodge[] = $obj ; }
+
 
         // 合併
         $arr = array_merge( $s_Basic  , $s_Bath , $s_Beauty , $s_Care , $s_Lodge ) ;

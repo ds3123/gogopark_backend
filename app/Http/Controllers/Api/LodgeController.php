@@ -40,9 +40,10 @@ class LodgeController extends Controller {
 
 
     // 查詢 : 所有 _ 住宿 + 客戶 + 客戶關係人 + 寵物
-    public function show_With_Cus_Relative_Pet( $is_Archive ){
+    public function show_With_Cus_Relative_Pet( $account_id = 1 , $is_Archive ){
 
         return Lodge::with('customer' , 'customer_relative' , 'pet' )
+                     ->where( 'account_id' , $account_id )
                      ->where( 'is_archive' , $is_Archive )
                      ->get() ;
 

@@ -4,6 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+
+
+use App\Employee ;
+
+
+
 class Account extends Model {
 
 
@@ -15,6 +21,11 @@ class Account extends Model {
     // -------------------------------------------
 
     // @類型 : 建立關係
+    public function shop_employees(){
+
+        return $this->hasMany( Employee::class , 'account_id' , 'account_id' ) ;
+
+    }
 
 
 

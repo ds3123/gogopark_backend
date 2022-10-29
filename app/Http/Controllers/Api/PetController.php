@@ -54,7 +54,7 @@ class PetController extends Controller{
 
 
     // 部分 _ 寵物，及其客戶 + 關係人
-    public function show_Pets_Customers_Relatives( $is_Archive , $data_Num = 50 ){
+    public function show_Pets_Customers_Relatives( $account_id = 1 ,  $is_Archive , $data_Num = 50 ){
 
 
        $pet_cus = Pet::with( array( 'customer' => function( $query ){
@@ -65,6 +65,7 @@ class PetController extends Controller{
                                     ))
                         ->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_rejected' , 'is_dead' , 'created_at' )            
                         ->limit( $data_Num )
+                        ->where( 'account_id' , $account_id )
                         ->where( 'is_archive' , $is_Archive )
                         ->orderBy( 'pet_id' , 'desc' )     // 前端已經有排序
                         ->get() ;
@@ -81,7 +82,7 @@ class PetController extends Controller{
 
 
     // 所有 _ 寵物，及其客戶 + 關係人
-    public function show_All_Pets_Customers_Relatives( $is_Archive ){
+    public function show_All_Pets_Customers_Relatives( $account_id = 1 , $is_Archive ){
 
         $pet_cus = Pet::with( array( 'customer' => function( $query ){
   
@@ -90,6 +91,7 @@ class PetController extends Controller{
                                                    }  
                             ))
                         ->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_rejected' , 'is_dead' , 'created_at' )
+                        ->where( 'account_id' , $account_id )
                         ->where( 'is_archive' , $is_Archive )
                         ->orderBy( 'pet_id' , 'desc' )    // 前端已經有排序
                         ->get() ;

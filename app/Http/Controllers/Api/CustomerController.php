@@ -159,7 +159,7 @@ class CustomerController extends Controller{
 
 
     // 部分 _ 客戶，及其關係人、寵物
-    public function show_Customers_Relatives_Pets( $is_Archive , $data_Num = 50 ){
+    public function show_Customers_Relatives_Pets( $account_id = 1 , $is_Archive , $data_Num = 50 ){
 
 
       $cus_relative_pet = Customer::with( [ 
@@ -168,6 +168,7 @@ class CustomerController extends Controller{
                                           ])
                                        ->select(  'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'is_rejected' , 'created_at' )  // 僅查詢客戶特定欄位 
                                        ->limit( $data_Num )
+                                       ->where( 'account_id' , $account_id )
                                        ->where( 'is_archive' , $is_Archive )
                                        ->orderBy( 'customer_id' , 'desc' )                
                                        ->get() ;
@@ -186,7 +187,7 @@ class CustomerController extends Controller{
 
 
     // 所有 _ 客戶，及其關係人、寵物
-    public function show_All_Customers_Relatives_Pets( $is_Archive ){
+    public function show_All_Customers_Relatives_Pets( $account_id = 1 , $is_Archive ){
 
 
        $cus_relative_pet = Customer::with( [ 
@@ -194,6 +195,7 @@ class CustomerController extends Controller{
                                              'customer_relation' => function( $query ){ $query->select( 'customer_id' , 'name' , 'tag'  , 'mobile_phone' , 'tel_phone' , 'is_archive'  ) ; } 
                                            ])
                                        ->select( 'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'is_rejected' , 'created_at' )  // 僅查詢客戶特定欄位 
+                                       ->where( 'account_id' , $account_id )
                                        ->where( 'is_archive' , $is_Archive )
                                        ->orderBy( 'customer_id' , 'desc' )                
                                        ->get() ;

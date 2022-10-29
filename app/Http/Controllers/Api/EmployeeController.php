@@ -40,8 +40,27 @@ class EmployeeController extends Controller {
 
         return Employee::where( 'account' , $account )->get() ;
 
-    }
+     }
 
+     // 查詢 : 為特定 id 的員工 ( 包含其所屬 _ 商店資料 )
+     public function show_Employee_With_Account_By_EmployeeId( $employee_id ){
+
+        return Employee::with( 'shop_account' )
+                         ->where( 'id' , $employee_id )
+                         ->first() ;
+
+     }
+
+
+
+
+
+     // 查詢 : 所有員工 ( 包含其所屬 _ 商店資料 )
+     public function show_All_Employees_With_Account( ){
+
+        return Employee::with( 'shop_account' )->get() ;
+
+     }
 
 
 }

@@ -4,6 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+
+use App\Account ;
+
+
 class Employee extends Model {
 
 
@@ -13,6 +17,13 @@ class Employee extends Model {
     // -------------------------------------------
 
     // @類型 : 建立關係
+    
+    // 該員工所屬商店
+    public function shop_account(){
+
+        return $this->belongsTo( Account::class , 'account_id' , 'account_id' ) ;
+
+    }
 
 
 
