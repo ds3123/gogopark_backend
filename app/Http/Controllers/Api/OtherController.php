@@ -40,9 +40,13 @@ class OtherController extends Controller{
 
  
     // 查詢 _ 特定日期 ( 建檔日期 : created_at ) , 收支  
-    public function show_Others_By_Date( $date ){
+    public function show_Others_By_Date( $account_id = 1 , $date ){
 
-        return Other::where( 'created_at' , 'like'  , $date.'%' )->get() ;
+        return Other::where( 'account_id' , $account_id ) 
+                      ->where( 'created_at' , 'like'  , $date.'%' )
+                      ->orderBy( 'created_at' , 'desc' )    // 依 : 建檔日期
+                      ->get() ;
+                      
   
     }
 

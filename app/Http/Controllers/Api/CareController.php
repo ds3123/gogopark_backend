@@ -39,12 +39,39 @@ class CareController extends Controller {
     // --------------------------------------------------------------------------
 
     // 查詢 : 所有 _ 安親 + 客戶 + 客戶關係人 + 寵物
-    public function show_With_Cus_Relative_Pet( $account_id = 1 , $is_Archive ){
+    public function show_With_Cus_Relative_Pet( $account_id , $is_Archive , Request $request ){
 
-        return Care::with('customer' , 'customer_relative' , 'pet' )
-                     ->where( 'account_id' , $account_id )
+
+        // 取得 _ 查詢字串參數值
+        $search = $request->query( 'search' ) ;  // 搜尋關鍵字
+
+
+        return Care::with( 'customer' , 'customer_relative' , 'pet' )
+                     ->where( 'account_id' , $account_id )                                                  // < 按照店家 id >
                      ->where( 'is_archive' , $is_Archive )
-                     ->get() ;
+                     // 視 '查詢關鍵字' 有無，決定是否加入以下查詢條件
+                     ->when( isset( $search ) && $search !== '' , function( $query ) use ( $search , $account_id ){  
+                                            
+                        return $query->whereHas( 'customer' , function( $query ) use ( $search , $account_id  ){ 
+
+                                            $query->where( 'account_id' , $account_id )                     // < 按照店家 id >
+                                                  ->where( 'name' , 'like' , '%'.$search.'%' )              // 客戶：姓名
+                                                  ->orWhere( 'id' , 'like' , '%'.$search.'%' )              // 客戶：身分證字號
+                                                  ->orWhere( 'mobile_phone' , 'like' , '%'.$search.'%' ) ;  // 客戶：手機號碼
+
+                                    })
+                                    ->orWhereHas( 'pet' , function( $query ) use ( $search , $account_id ){ 
+
+                                            $query->where( 'account_id' , $account_id )                     // < 按照店家 id >
+                                                  ->where( 'name' , 'like' , '%'.$search.'%' )              // 寵物：名字
+                                                  ->orWhere( 'species' , 'like' , '%'.$search.'%' )         // 寵物：品種
+                                                  ->orWhere( 'serial' , 'like' , '%'.$search.'%' ) ;        // 寵物：序號
+
+                                    }) ;       
+                                
+                     })
+                     ->orderBy( 'created_at' , 'desc' )   
+                     ->paginate( 10 ) ;
 
     }
 
@@ -61,6 +88,7 @@ class CareController extends Controller {
     public function show_Pet_Records( $pet_Serial ){
 
          return Care::with( "customer" , "pet" )
+                     ->orderBy( 'created_at' , 'desc' )    // 依 : 建檔日期
                      ->where( 'pet_id' , $pet_Serial )
                      ->get() ;
 

@@ -22,7 +22,7 @@ class Customer_Relation extends Model {
     public function customer(){
 
         // return $this->hasOne( Customer::class , 'id' ) ;
-        return $this->belongsTo(Customer::class , 'customer_id' , 'id' ) ;
+        return $this->belongsTo( Customer::class , 'customer_id' , 'id' ) ;
 
     }
 

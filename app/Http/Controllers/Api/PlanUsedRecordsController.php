@@ -41,15 +41,29 @@ class PlanUsedRecordsController extends Controller {
     // ------------------------ 
 
    
-    // 查詢 _ 特定方案使用紀錄( 包含該紀錄 洗澡 / 美容 的服務內容 )
-    public function show_Sigle_PlanUsedRecord_With_Service( $record_Id ){
+    // 查詢 _ 特定方案使用紀錄( 包含該紀錄所屬 ：方案 / 洗澡單 / 美容單 內容 )
+    public function show_Sigle_PlanUsedRecord_With_Service( $account_id = 1 , $record_Id ){
 
-        return PlanUsedRecords::with( 'bath' , 'beauty' )->where( 'id' ,  $record_Id )->first();
+        return PlanUsedRecords::with( 'plan' , 'bath' , 'beauty' )
+                                ->where( 'account_id' , $account_id ) 
+                                ->where( 'id' ,  $record_Id )
+                                ->first() ;
+
 
     }
 
+    // 查詢 _ 特定店家，特定方案，其所有使用紀錄
+    public function show_Shop_Used_Records_By_PlanId( $account_id = 1 , $plan_Id ){
 
 
+        return PlanUsedRecords::with( 'plan' )
+                                ->where( 'account_id' , $account_id ) 
+                                ->where( 'plan_id' ,  $plan_Id )
+                                ->get() ;
+
+
+
+    }
 
 
 }

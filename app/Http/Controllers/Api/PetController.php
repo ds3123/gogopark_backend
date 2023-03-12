@@ -39,68 +39,99 @@ class PetController extends Controller{
     // 單一寵物，及其客戶
     public function show_Pet_Customer( $serial ){
 
-      return Pet::with( 'customer' )->where( 'serial' , $serial )->first();
+      return Pet::with( 'customer' )
+                  ->where( 'serial' , $serial )
+                  ->first();
+
+    }
+
+    // 特定店家，特定寵物
+    public function show_Shop_Pet( $account_id = 1 , $serial ){
+
+        return Pet::with( 'customer' )
+                   ->where( 'account_id' , $account_id )
+                   ->where( 'serial' , $serial )
+                   ->get() ;
+
 
     }
 
     // 所有寵物，及其客戶
-    public function show_Pets_Customers(){
+    public function show_Pets_Customers( $account_id = 1 ){
 
-       $pet_cus = Pet::with( 'customer' )->orderBy( 'created_at' , 'desc' )->get();
-       return $pet_cus ? $pet_cus : [] ;
-
-    }
-
-
-
-    // 部分 _ 寵物，及其客戶 + 關係人
-    public function show_Pets_Customers_Relatives( $account_id = 1 ,  $is_Archive , $data_Num = 50 ){
-
-
-       $pet_cus = Pet::with( array( 'customer' => function( $query ){
-  
-                                                     $query->select(  'name' , 'id'  , 'mobile_phone' , 'is_rejected' ) ;     
-
-                                                  }  
-                                    ))
-                        ->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_rejected' , 'is_dead' , 'created_at' )            
-                        ->limit( $data_Num )
-                        ->where( 'account_id' , $account_id )
-                        ->where( 'is_archive' , $is_Archive )
-                        ->orderBy( 'pet_id' , 'desc' )     // 前端已經有排序
-                        ->get() ;
-
-    //    $pet_cus = Pet::with( 'customer' , 'customer_relative' )
-    //                    ->limit( $data_Num )
-    //                    ->where( 'is_archive' , $is_Archive )
-    //                    ->orderBy( 'pet_id' , 'desc' )     // 前端已經有排序
-    //                    ->get();
-
+       $pet_cus = Pet::with( 'customer' )
+                       ->where( 'account_id' , $account_id )
+                       ->orderBy( 'created_at' , 'desc' )
+                       ->get();
+       
        return $pet_cus ;
 
     }
 
 
-    // 所有 _ 寵物，及其客戶 + 關係人
-    public function show_All_Pets_Customers_Relatives( $account_id = 1 , $is_Archive ){
+    // 特定店家，被拒接 ( 通過、審核中 ) 的寵物 ( 及其主人 )
+    public function show_Pets_On_Rejected( $account_id = 1 ){
 
+        $pet_cus = Pet::with( 'customer' )
+                       ->where( 'account_id' , $account_id )
+                       ->where( function( $query ){
+
+                            return $query->where( 'rejected_status' , "審核中"  ) 
+                                         ->orWhere( 'rejected_status' , "通過"  ) ;
+                    
+                        })   
+                       ->orderBy( 'rejected_status' , 'asc' )  // 以審核狀態排序 ( 審核中 -> 排在一起，並優先排在最上層 )
+                       ->orderBy( 'updated_at' , 'desc' )      // 再以更新時間排序 
+                       ->paginate( 10 );
+        
+        
+        return $pet_cus ;
+ 
+     }
+
+
+
+
+    // 所有 _ 寵物，及其客戶 + 關係人
+    public function show_All_Pets_Customers_Relatives( $account_id , $is_Archive , Request $request ){
+
+
+        // 取得 _ 查詢字串參數值
+        $search = $request->query( 'search' ) ;  
+
+
+        // 查詢 _ 寵物、客戶資料 
         $pet_cus = Pet::with( array( 'customer' => function( $query ){
   
-                                                       $query->select( 'name' , 'id'  , 'mobile_phone' , 'is_rejected' ) ;     
+                                                       $query->select( 'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'is_rejected' ) ;     
  
                                                    }  
                             ))
-                        ->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_rejected' , 'is_dead' , 'created_at' )
-                        ->where( 'account_id' , $account_id )
+                        ->select( 'pet_id', 'account_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'note' , 'birthday' , 'is_rejected' , 'is_dead' , 'created_at' , 'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' )
                         ->where( 'is_archive' , $is_Archive )
-                        ->orderBy( 'pet_id' , 'desc' )    // 前端已經有排序
-                        ->get() ;
+                        // 視 '查詢關鍵字' 有無，決定是否加入以下查詢條件
+                        ->when( isset( $search ) && $search !== '' , function( $query ) use ( $search , $account_id ){  
+                                          
+                            return $query->where( 'account_id' , $account_id )                                    // < 按照店家 id >
+                                         ->where( 'name' , 'like' , '%'.$search.'%' )                             // 寵物：名字  
+                                         ->orWhere( 'species' , 'like' , '%'.$search.'%' )                        // 寵物：品種
+                                         ->orWhere( 'serial' , 'like' , '%'.$search.'%' )                         // 寵物：序號    
+                                         ->orWhereHas( 'customer' , function( $query ) use ( $search , $account_id ){ 
 
-        // $pet_cus = Pet::with( 'customer' , 'customer_relative' )
-        //                 ->where( 'is_archive' , $is_Archive )
-        //                 ->orderBy( 'pet_id' , 'desc' )    // 前端已經有排序
-        //                 ->get();
+                                            return $query->where( 'account_id' , $account_id )                    // < 按照店家 id >
+                                                         ->where( 'name' , 'like' , '%'.$search.'%' )             // 客戶：姓名
+                                                         ->orWhere( 'id' , 'like' , '%'.$search.'%' )             // 客戶：身分證字號
+                                                         ->orWhere( 'mobile_phone' , 'like' , '%'.$search.'%' ) ; // 客戶：手機號碼
 
+                                         }) ;   
+                                         
+
+
+                        })
+                        ->orderBy( 'created_at' , 'desc' )   
+                        ->where( 'account_id' , $account_id )  // < 按照店家 id >
+                        ->paginate( 10 ) ;
+                        
 
         return $pet_cus ;
  
@@ -108,9 +139,11 @@ class PetController extends Controller{
 
 
     // 取得 _ 目前某品種的所有寵物
-    public function show_Current_Pet_Species( $species_Name ){
+    public function show_Current_Pet_Species( $account_id = 1 , $species_Name ){
 
-       return Pet::where( 'species' , $species_Name )->get() ;
+       return Pet::where( 'species' , $species_Name )
+                   ->where( 'account_id' , $account_id )
+                   ->get() ;
        
     }
 

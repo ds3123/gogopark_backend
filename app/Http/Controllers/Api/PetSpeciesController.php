@@ -56,6 +56,24 @@ class PetSpeciesController extends Controller {
 
     }
 
+
+     // 查詢 : 特定商店，所有品種，其資料 + 所有服務價格
+     public function show_All_Species_Shop_Service_Prices( $account_id = 1 ){
+
+        return PetSpecies::with( 'service_prices' )
+                         ->whereHas( 'service_prices' , function( $query ) use ( $account_id ){ 
+
+                               $query->where( 'account_id' , $account_id ) ;
+
+                           })
+                         ->orderBy('id','desc')
+                         ->get() ;
+
+    }
+
+
+
+
     // 查詢 : 特定品種，其資料 + 所有服務價格
     public function show_single_species_service_prices( $pet_id ){
 
@@ -75,7 +93,9 @@ class PetSpeciesController extends Controller {
     // 查詢 : 連結 _ 排序資料表( species_sorts) 的品種資料
     public function show_Sort_Order_Data(){
 
-      return PetSpecies::with( 'sort_order' )->orderBy('id' , 'desc')->get() ;
+      return PetSpecies::with( 'sort_order' )
+                         ->orderBy( 'id' , 'desc' )
+                         ->get() ;
 
 
     }

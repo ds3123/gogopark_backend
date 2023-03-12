@@ -69,6 +69,7 @@ class BathController extends Controller {
     public function show_Pet_Records( $pet_Serial ){
 
         return Bath::with( "customer" , "pet" )
+                     ->orderBy( 'created_at' , 'desc' )    // 依 : 建檔日期  
                      ->where( 'pet_id' , $pet_Serial )
                      ->get() ;
 

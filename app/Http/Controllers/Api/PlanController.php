@@ -28,7 +28,7 @@ class PlanController extends Controller {
 
     }
 
-    public function destroy($id) {
+    public function destroy($id){
 
         Plan::findOrFail( $id )->delete();
         return '刪除 _ 方案資料成功' ;
@@ -38,13 +38,42 @@ class PlanController extends Controller {
     // -----------------------------------------------------------------------------
 
     // 查詢 _ 所有 : 方案 + 客戶資料 + 寵物品種資料 + 方案使用紀錄
-    public function show_All_Plans_With_Customer_PetSpecies_PlanUsedRecords( $account_id = 1 ){
+    public function show_All_Plans_With_Customer_PetSpecies_PlanUsedRecords( $account_id , Request $request ){
 
-        return Plan::with( 'customer' , 'customer_relative' ,
-                            'custom_plan'  , 'pet' , 'pet_species' , 'plan_used_records' )
-                     ->orderBy( 'id' , 'desc' )
-                     ->where( 'account_id' , $account_id )
-                     ->get() ;
+    
+        // 取得 _ 查詢字串參數值
+        $search = $request->query( 'search' ) ;  // 搜尋關鍵字
+
+
+        return Plan::with( 'customer' , 'customer_relative' , 'custom_plan'  , 'pet' , 'pet_species' , 'plan_used_records' )
+                    ->where( 'account_id' , $account_id )                                                  // < 按照店家 id >
+                    // 視 '查詢關鍵字' 有無，決定是否加入以下查詢條件
+                    ->when( isset( $search ) && $search !== '' , function( $query ) use ( $search , $account_id  ){  
+                                                
+                        return $query->where( 'account_id' , $account_id )                                 // < 按照店家 id >
+                                     ->where( 'plan_type' , 'like' , '%'.$search.'%' )                     // 方案 : 類型 / 名稱  
+                                     ->orWhereHas( 'customer' , function( $query ) use ( $search , $account_id  ){ 
+
+                                            $query->where( 'account_id' , $account_id )                    // < 按照店家 id >
+                                                  ->where( 'name' , 'like' , '%'.$search.'%' )             // 客戶：姓名
+                                                  ->orWhere( 'id' , 'like' , '%'.$search.'%' )             // 客戶：身分證字號
+                                                  ->orWhere( 'mobile_phone' , 'like' , '%'.$search.'%' ) ; // 客戶：手機號碼
+
+                                    })
+                                    ->orWhereHas( 'pet' , function( $query ) use ( $search , $account_id  ){ 
+
+                                            $query->where( 'account_id' , $account_id )                    // < 按照店家 id >
+                                                  ->where( 'name' , 'like' , '%'.$search.'%' )             // 寵物：名字
+                                                  ->orWhere( 'species' , 'like' , '%'.$search.'%' )        // 寵物：品種
+                                                  ->orWhere( 'serial' , 'like' , '%'.$search.'%' ) ;       // 寵物：序號
+
+                                    }) ;       
+                                    
+                    })
+                    ->orderBy( 'id' , 'desc' )
+                    ->limit( 100 )                                                                          // 方案限制在 100 筆 2023.02.22
+                    ->get()
+                    ->paginate( 10 ) ;
 
     }
 
@@ -91,10 +120,11 @@ class PlanController extends Controller {
     }
 
     
-    // 查詢方案單，相對應的 : 方案消費紀錄 ( 與以上類似，考慮整合 2022.01.19 )
+    // 查詢 _ 特定寵物 ( 依 "寵物編號") ，所有方案紀錄
     public function show_Pet_Records( $pet_Serial ){
 
         return Plan::with( "customer" , "pet" )
+                    ->orderBy( 'created_at' , 'desc' )    // 依 : 建檔日期   
                     ->where( 'apply_pet_serial' , $pet_Serial )
                     ->get() ;
 
@@ -109,20 +139,24 @@ class PlanController extends Controller {
     }
 
 
-    // 查詢 _ 特定日期 ( 建檔日期 )，購買的方案
-    public function show_Plans_By_Date( $date ){
+    // 查詢 _ 特定日期 ( 建檔日期 : created_at -> 方案沒有 service_date )，購買的方案
+    public function show_Plans_By_Date( $account_id = 1 , $date ){
 
-       return Plan::where( 'created_at' , 'like'  , $date.'%' )
-                    ->with( 'customer' , 'pet' )
+       return Plan::with( 'customer' , 'pet' )
+                    ->orderBy( 'created_at' , 'desc' )    // 依 : 建檔日期   
+                    ->where( 'account_id' , $account_id )
+                    ->where( 'created_at' , 'like'  , $date.'%' )
                     ->get() ;
  
     }
     
     // 查詢 _ 特定日期（ 付款日期 ），購買的方案
-    public function show_Plans_By_Paymentdate( $date ){
+    public function show_Plans_By_Paymentdate( $account_id = 1 , $date ){
 
-       return Plan::where( 'payment_date' , 'like'  , $date.'%' )
-                    ->with( 'customer' , 'pet' )
+       return Plan::with( 'customer' , 'pet' )
+                    ->orderBy( 'created_at' , 'desc' )    // 依 : 建檔日期
+                    ->where( 'account_id' , $account_id ) 
+                    ->where( 'payment_date' , 'like'  , $date.'%' )
                     ->get() ;
  
     }

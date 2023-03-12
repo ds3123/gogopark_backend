@@ -43,22 +43,57 @@ class CustomerController extends Controller{
 
     // @ 自訂函式 --------------------------------------------------------
 
+
+    // 測試用，之後刪除 ( 2022.11.26 回傳 _ 物件，而非陣列 )
+        public function show_Customer_Object(){
+
+
+         $cus_relative_pet = Customer::with( [ 
+            'pets'              => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_dead' , 'is_rejected'  ) ; } ,
+            'customer_relation' => function( $query ){ $query->select( 'customer_id' , 'name' , 'tag'  , 'mobile_phone' , 'tel_phone' ,  'is_archive' ) ;  } 
+         ])
+                                    ->select(  'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'is_rejected' , 'created_at' )  // 僅查詢客戶特定欄位 
+                                    ->where( 'account_id' , 1 )
+                                    ->where( 'is_archive' , 0 )
+                                    ->orderBy( 'customer_id' , 'desc' ) 
+                                    ->paginate( 10 ) ;
+                                 
+
+           return $cus_relative_pet ; 
+
+        }
+
     // # 查詢 :
 
         // 特定客戶 ( 依 : 手機號碼 )
-        public function show_By_Mobile( $mobile ){  return Customer::where( 'mobile_phone' , $mobile )->first();  }
+        public function show_By_Mobile( $mobile ){  return Customer::where( 'mobile_phone' , $mobile )->first() ;  }
 
         // 特定客戶 ( 依 : 身分證字號 )
-        public function show_By_Id( $id ){ return Customer::where( 'id' , $id )->first(); }
+        public function show_By_Id( $id ){  return Customer::where( 'id' , $id )->first() ; }
 
-
-        // 多個客戶 ( LIKE 模糊搜尋 ， 依 : 傳入參數 : 查詢欄位 與 查詢值 ，如 : 'id' & 身分證字號 或 'mobile_phone' & 手機號碼 )
-        public function show_By_Param( $col , $param ){
+        // 特定店家，依 : 傳入參數 : 查詢欄位 與 查詢值 ，如 : 'id' & 身分證字號 或 'mobile_phone' & 手機號碼 
+        public function show_By_Param( $account_id , $col , $param ){
 
            // 模糊搜尋、前 5 筆資料
-           return Customer::with( 'pets' , 'customer_relation' )->where( $col , 'like' , '%'.$param.'%' )->offset(0)->take(5)->get() ;
+           return Customer::with( 'pets' , 'customer_relation' )
+                            ->where( 'account_id' , $account_id  )
+                            ->where( $col , 'like' , '%'.$param.'%' )
+                            ->offset(0)
+                            ->take(5)
+                            ->get() ;
 
         }
+
+        // 所有店家， 依 : 傳入參數 : 查詢欄位 與 查詢值 ，如 : 'id' & 身分證字號 或 'mobile_phone' & 手機號碼 
+        public function show_By_Param_All( $col , $param ){
+
+            // 精確搜尋
+            return Customer::with( 'pets' , 'customer_relation' )
+                             ->where( $col , $param )
+                             ->get() ;
+ 
+        }
+
 
     // # 新增 :
 
@@ -67,7 +102,7 @@ class CustomerController extends Controller{
 
     // # 更新 :
 
-        // 特定客戶 _ 關係人 ( 依 : `customer_relation 主鍵` )
+        // 特定客戶 _ 關係人 ( 依 : `customer_relation 主鍵 ` )
         public function update_Relation( Request $request , $relation_id ){
 
            Customer_Relation::findOrFail( $relation_id )->update( $request->all() );
@@ -147,70 +182,82 @@ class CustomerController extends Controller{
 
     // # 多對多 : 所有客戶，有 ~
 
-    // 所有客戶及其寵物
-    public function show_Customers_Pets(){
+    // 特定店家，所有客戶及其寵物
+    public function show_Customers_Pets( $account_id = 1 ){
 
-       $cus_pet = Customer::with( 'pets' )->orderBy( 'created_at' , 'desc' )->get();
+       $cus_pet = Customer::with( 'pets' )
+                          ->where( 'account_id' , $account_id )   
+                          ->orderBy( 'created_at' , 'desc' )
+                          ->get();
      
-       // $cus_pet = Customer::with( 'pets' )->get() ;
-       return $cus_pet ? $cus_pet : [] ;
+       return $cus_pet ;
 
     }
 
+    // 特定店家，被拒接 ( 狀態 : 通過、審核中 ) 的客戶及其寵物 
+    public function show_Customers_On_Rejected( $account_id = 1 ){
 
-    // 部分 _ 客戶，及其關係人、寵物
-    public function show_Customers_Relatives_Pets( $account_id = 1 , $is_Archive , $data_Num = 50 ){
+      $cus_pet = Customer::with( 'pets' )
+                         ->where( 'account_id' , $account_id )
+                         ->where( function( $query ){
 
+                               return $query->where( 'rejected_status' , "審核中"  ) 
+                                            ->orWhere( 'rejected_status' , "通過"  ) ;
+                           
+                         })   
+                         ->orderBy( 'rejected_status' , 'asc' )  // 以審核狀態排序 ( 審核中 -> 排在一起，並優先排在最上層 )
+                         ->orderBy( 'updated_at' , 'desc' )      // 再以更新時間排序 
+                         ->paginate( 10 );
+    
+      return $cus_pet ;
 
-      $cus_relative_pet = Customer::with( [ 
-                                             'pets'              => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_dead' , 'is_rejected'  ) ; } ,
-                                             'customer_relation' => function( $query ){ $query->select( 'customer_id' , 'name' , 'tag'  , 'mobile_phone' , 'tel_phone' ,  'is_archive' ) ;  } 
-                                          ])
-                                       ->select(  'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'is_rejected' , 'created_at' )  // 僅查詢客戶特定欄位 
-                                       ->limit( $data_Num )
-                                       ->where( 'account_id' , $account_id )
-                                       ->where( 'is_archive' , $is_Archive )
-                                       ->orderBy( 'customer_id' , 'desc' )                
-                                       ->get() ;
-
-
-      // $cus_relative_pet = Customer::with( 'pets' , 'customer_relation' )
-      //                               ->limit( $data_Num )
-      //                               ->where( 'is_archive' , $is_Archive )
-      //                               ->orderBy( 'customer_id' , 'desc' )   // 前端以 ( created_at ) 排序
-      //                               ->get() ;
-
-
-      return $cus_relative_pet ;
-
-    }
+   }
 
 
     // 所有 _ 客戶，及其關係人、寵物
-    public function show_All_Customers_Relatives_Pets( $account_id = 1 , $is_Archive ){
+    public function show_All_Customers_Relatives_Pets( $account_id , $is_Archive , Request $request ){
 
 
-       $cus_relative_pet = Customer::with( [ 
-                                             'pets'              => function( $query ){ $query->select( 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'birthday' , 'is_dead' , 'is_rejected'  ) ;  } ,
+
+           // 取得 _ 查詢字串參數值
+           $search = $request->query( 'search' ) ;  
+      
+           // 查詢 _ 客戶、關係人、寵物資料 
+           $cus_Relative_Pet = Customer::with([ 
+           // dd( Customer::with([               // 配合以下 .toSql()，印出 sql 查詢式 
+
+                                             'pets'              => function( $query ){ $query->select( 'account_id' , 'pet_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'note' , 'birthday' , 'is_dead' , 'is_rejected' , 'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' ) ;  } ,
                                              'customer_relation' => function( $query ){ $query->select( 'customer_id' , 'name' , 'tag'  , 'mobile_phone' , 'tel_phone' , 'is_archive'  ) ; } 
-                                           ])
-                                       ->select( 'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'is_rejected' , 'created_at' )  // 僅查詢客戶特定欄位 
-                                       ->where( 'account_id' , $account_id )
-                                       ->where( 'is_archive' , $is_Archive )
-                                       ->orderBy( 'customer_id' , 'desc' )                
-                                       ->get() ;
+                                          
+                                          ])
+                                          ->select( 'customer_id' , 'name' , 'id'  , 'mobile_phone' , 'address' , 'is_rejected' , 'created_at' )  // 僅查詢客戶特定欄位 
+                                          ->where( 'is_archive' , $is_Archive )
+                                          // 視 '查詢關鍵字' 有無，決定是否加入以下查詢條件
+                                          ->when( isset( $search ) && $search !== '' , function( $query ) use ( $search , $account_id ){  
+                                          
+                                                return $query->where( 'account_id' , $account_id )                                   // < 按照店家 id >
+                                                             ->where( 'name' , 'like' , $search.'%' )                                // 客戶：姓名 
+                                                             ->orWhere( 'id' , $search )                                             // 客戶：身分證字號
+                                                             ->orWhere( 'mobile_phone' , 'like' , $search.'%' )                      // 客戶：手機號碼
+                                                             ->orWhereHas( 'customer_relation' , function( $query ) use ( $search , $account_id ){ 
 
+                                                                  return $query->where( 'account_id' , $account_id )                 // < 按照店家 id >
+                                                                               ->where( 'name' , 'like' , $search.'%' )              // 關係人：姓名
+                                                                               ->orWhere( 'mobile_phone' , $search )                 // 關係人：手機號碼
+                                                                               ->orWhere( 'tel_phone' , 'like' , '%'.$search.'%' ) ; // 關係人：家用電話
+         
+                                                               }) ;
+                                                                  
+                                          })
+                                          ->orderBy( 'created_at' , 'desc' )    // 以 created_at 欄位，降冪排序  
+                                          ->where( 'account_id' , $account_id ) // < 按照店家 id >
+                                          // ->toSql() ) ;     // 配合以上 dd()，印出 sql 查詢式   
+                                          ->paginate( 10 ) ;   // 每頁 10 筆資料              
+                                           
 
-      // $cus_relative_pet = Customer::with( 'pets' , 'customer_relation' )
-      //                               ->where( 'is_archive' , $is_Archive )
-      //                               ->orderBy( 'customer_id' , 'desc' )   // 前端以 ( created_at ) 排序
-      //                               ->get() ;
-
-    
-    
-    
-      return $cus_relative_pet ;
-
+            return $cus_Relative_Pet ;
+            
+          
     }
 
 

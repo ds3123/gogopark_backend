@@ -15,8 +15,11 @@ class AccountController extends Controller {
     public function show( $id ){  return  Account::findOrFail( $id ) ; }
 
     public function store( Request $request ) {
-        Account::create( $request->all() );
-        return '帳號資料 _ 新增成功' ;
+
+        $account_id = Account::create( $request->all() )->account_id ;
+       
+        return $account_id ;  // 回傳 : 所新增帳號的 id
+
     }
 
 

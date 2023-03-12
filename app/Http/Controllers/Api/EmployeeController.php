@@ -52,13 +52,21 @@ class EmployeeController extends Controller {
      }
 
 
-
-
-
      // 查詢 : 所有員工 ( 包含其所屬 _ 商店資料 )
      public function show_All_Employees_With_Account( ){
 
-        return Employee::with( 'shop_account' )->get() ;
+        return Employee::with( 'shop_account' )
+                        ->get() ;
+
+     }
+
+
+     // 查詢 : 特定商店，所有員工 ( 包含其所屬 _ 商店資料 )
+     public function show_Shop_Employees_With_Account( $account_id = 1 ){
+
+        return Employee::with( 'shop_account' )
+                        ->where( 'account_id' , $account_id )
+                        ->get() ;
 
      }
 

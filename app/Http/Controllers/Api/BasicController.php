@@ -90,8 +90,8 @@ class BasicController extends Controller {
     public function show_Customer_ID( $customerID ){
 
         return Basic::with( "customer" , "pet" )
-                      ->where( 'customer_id' , $customerID  )
-                      ->get() ;
+                     ->where( 'customer_id' , $customerID )
+                     ->get() ;
 
     }
 
@@ -100,6 +100,7 @@ class BasicController extends Controller {
    public function show_Pet_Records( $pet_Serial ){
 
       return Basic::with( "customer" , "pet" )
+                   ->orderBy( 'created_at' , 'desc' )    // 依 : 建檔日期  
                    ->where( 'pet_id' , $pet_Serial )
                    ->get() ;
 
