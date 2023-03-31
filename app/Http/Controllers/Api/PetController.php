@@ -107,7 +107,7 @@ class PetController extends Controller{
  
                                                    }  
                             ))
-                        ->select( 'pet_id', 'account_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'note' , 'birthday' , 'is_rejected' , 'is_dead' , 'created_at' , 'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' )
+                        ->select( 'pet_id', 'account_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'note' , 'lodge_note' , 'private_note' , 'birthday' , 'is_rejected' , 'is_dead' , 'created_at' , 'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' )
                         ->where( 'is_archive' , $is_Archive )
                         // 視 '查詢關鍵字' 有無，決定是否加入以下查詢條件
                         ->when( isset( $search ) && $search !== '' , function( $query ) use ( $search , $account_id ){  

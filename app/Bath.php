@@ -37,14 +37,14 @@ class Bath extends Model{
     // ~ 客戶
     public function customer(){
 
-        return $this->belongsTo(Customer::class , 'customer_id' , 'id' ) ;
+        return $this->belongsTo( Customer::class , 'customer_id' , 'id' ) ;
 
     }
 
     // ~ 客戶 _ 關係人
     public function customer_relative(){
 
-        return $this->belongsTo(Customer_Relation::class , 'customer_id' , 'customer_id' ) ;
+        return $this->belongsTo( Customer_Relation::class , 'customer_id' , 'customer_id' ) ;
 
     }
 
@@ -69,5 +69,16 @@ class Bath extends Model{
         return $this->hasMany( ServiceErrorRecords::class , 'service_id' , 'bath_id' ) ;
  
     }
+
+
+    // ~ 加價單
+    public function extra_fee(){
+
+        return $this->hasMany( Extra_Fee::class , 'service_id' , 'bath_id' ) ;
+  
+    }
+  
+
+
 
 }

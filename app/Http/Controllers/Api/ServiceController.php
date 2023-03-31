@@ -52,11 +52,16 @@ class ServiceController extends Controller{
         $f_Date = $request->query( 'date_1' ) ;  // 篩選 _ 來店日期
 
 
+
+        // $basic_Arr  = Basic::with([ 
+        //     'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' );  } ,
+        //     'pet'      => function( $query ){ $query->select( 'pet_id' , 'account_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'birthday'  ,  'sex' , 'color' , 'note' , 'lodge_note' , 'private_note' ); } 
+        //   ])
+
+
+
         // 基礎  
-        $basic_Arr  = Basic::with([ 
-                                    'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' );  } ,
-                                    'pet'      => function( $query ){ $query->select( 'pet_id' , 'account_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'birthday'  ,  'sex' , 'color' , 'note' ); } 
-                                  ])
+        $basic_Arr  = Basic::with( 'customer' , 'pet' , 'extra_fee' )
                              ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期                 
                              ->where( 'account_id' , $account_id )   // < 按照店家 id >
                              ->where( 'is_archive' , $is_Archive ) 
@@ -91,12 +96,7 @@ class ServiceController extends Controller{
                             ->get() ; 
                             
         // 洗澡
-        $bath_Arr   = Bath::with([ 
-                                    'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' ); } ,
-                                    'pet'      => function( $query ){ $query->select( 'pet_id' , 'account_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'birthday'  , 'color' , 'note' ,
-                                                                                      'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' ); } ,
-                                    'plan'     => function( $query ){ $query->select( 'id' , 'plan_id' , 'service_id' , 'service_note' ); } 
-                                 ])
+        $bath_Arr   = Bath::with( 'customer' , 'pet' , 'plan' , 'extra_fee' )
                             ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期      
                             ->where( 'account_id' , $account_id )   // < 按照店家 id >
                             ->where( 'is_archive' , $is_Archive ) 
@@ -132,12 +132,7 @@ class ServiceController extends Controller{
                             ->get() ;
                         
         // 美容
-        $beauty_Arr = Beauty::with([
-                                     'customer' => function( $query ){ $query->select( 'name' , 'id' , 'mobile_phone' ); } ,
-                                     'pet'      => function( $query ){ $query->select( 'pet_id' , 'account_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'birthday' , 'color' , 'note' ,
-                                                                                        'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' );  } ,
-                                     'plan'     => function( $query ){ $query->select( 'id' , 'plan_id' , 'service_id' , 'service_note' );  } 
-                                   ])
+        $beauty_Arr = Beauty::with( 'customer' , 'pet' , 'plan' , 'extra_fee' )
                               ->orderBy( 'service_date' , 'desc' )    // 依 : 來店日期      
                               ->where( 'account_id' , $account_id )   // < 按照店家 id >
                               ->where( 'is_archive' , $is_Archive )

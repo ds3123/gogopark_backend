@@ -72,5 +72,12 @@ class Beauty extends Model {
      }
 
 
+     // ~ 加價單
+     public function extra_fee(){
 
+        return $this->hasMany( Extra_Fee::class , 'service_id' , 'beauty_id' ) ;
+  
+     }
+
+     
 }

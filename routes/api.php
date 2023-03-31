@@ -257,6 +257,20 @@ Route::namespace( 'Api' )->group( function(){
 
      }) ;
 
+
+     // @ 服務單建立後，所開立的 _ 加價單
+     Route::group( ['prefix' => 'extra_fees'] , function(){
+
+
+        // 查詢 _ 特定 [ 付款日期 ] : 所有加價單
+        Route::get( '/show_extra_fees_by_paymentdate/{account_id}/{date}' , 'ExtraFeeController@show_ExtraFees_By_Paymentdate' );
+
+
+     });
+
+     Route::apiResource( '/extra_fees' , 'ExtraFeeController' ) ;
+
+
      // @ 品種 ( 資料表 : pet_species )
      Route::group( ['prefix' => 'pet_species'] , function(){
 

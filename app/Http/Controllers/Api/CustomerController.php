@@ -226,7 +226,7 @@ class CustomerController extends Controller{
            $cus_Relative_Pet = Customer::with([ 
            // dd( Customer::with([               // 配合以下 .toSql()，印出 sql 查詢式 
 
-                                             'pets'              => function( $query ){ $query->select( 'account_id' , 'pet_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'note' , 'birthday' , 'is_dead' , 'is_rejected' , 'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' ) ;  } ,
+                                             'pets'              => function( $query ){ $query->select( 'account_id' , 'pet_id' , 'customer_id' , 'serial' , 'name' , 'species' , 'sex' , 'color' , 'note' , 'lodge_note' , 'private_note' , 'birthday' , 'is_dead' , 'is_rejected' , 'single_bath_price' , 'single_beauty_price' , 'month_bath_price' , 'month_beauty_price' ) ;  } ,
                                              'customer_relation' => function( $query ){ $query->select( 'customer_id' , 'name' , 'tag'  , 'mobile_phone' , 'tel_phone' , 'is_archive'  ) ; } 
                                           
                                           ])
